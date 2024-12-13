@@ -38,7 +38,7 @@ function Home() {
         </div>
       ) : (
         <div className="bg-white text-gray-800 p-8 rounded-lg shadow-lg text-center max-w-lg mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-romantic text-red-500 mb-4">Hi Bạn Bơ,</h1>
+          <h1 className="text-2xl sm:text-3xl font-romantic text-red-500 mb-4">Hi Bạn Bear,</h1>
           <p className="text-base sm:text-lg leading-relaxed">
             On this beautiful Christmas, I just want to say how much you mean to me. Your smile lights up my days, and every moment with you feels like magic. Thank you for being you. 🎅🎄
           </p>
