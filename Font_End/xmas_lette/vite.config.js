@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+//git
 export default defineConfig({
-  base: "/xmas_website/"
+  base: "/xmas_website/",
   plugins: [react()],
 
 })
