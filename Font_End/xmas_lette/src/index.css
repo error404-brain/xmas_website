@@ -15,3 +15,25 @@
 img {
   animation: bounce 2s infinite;
 }
+
+
+@keyframes led-flicker {
+  0%, 100% {
+    border-color: #ff0000;
+  }
+  25% {
+    border-color: #00ff00;
+  }
+  50% {
+    border-color: #0000ff;
+  }
+  75% {
+    border-color: #ffff00;
+  }
+}
+
+.border-animation {
+  animation: led-flicker 2s infinite;
+}
+
+
