@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cắt Ảnh 3x3 - Game Ghép Hình</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8f0ff;
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .preview-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        #preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .grid-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .grid-preview canvas {
+            width: 100%;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 20px auto;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .instructions {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Cắt Ảnh 3x3 Cho Game Ghép Hình</h1>
+        <p class="subtitle">Tải ảnh lên và tự động cắt thành 9 mảnh để làm game!</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <h3>Kéo thả ảnh vào đây hoặc click để chọn</h3>
+            <p style="color: #999; margin-top: 10px;">Hỗ trợ: JPG, PNG, GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <h3 style="text-align: center; color: #667eea;">👀 Xem Trước Ảnh Gốc:</h3>
+            <img id="preview" alt="Preview">
+            
+            <button id="splitBtn">✂️ Cắt Ảnh Thành 9 Mảnh</button>
+
+            <div class="progress" id="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+            </div>
+
+            <div id="gridPreview" class="grid-preview" style="display: none;">
+                <h3 style="grid-column: 1/-1; text-align: center; color: #667eea;">🎮 Các Mảnh Đã Cắt:</h3>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                ✅ Thành công! Đã tải xuống 9 mảnh ảnh. Kiểm tra thư mục Downloads của bạn!
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Hướng dẫn sử dụng:</h3>
+            <ol>
+                <li><strong>Tải ảnh lên:</strong> Click vào vùng upload hoặc kéo thả ảnh vào</li>
+                <li><strong>Cắt ảnh:</strong> Nhấn nút "Cắt Ảnh Thành 9 Mảnh"</li>
+                <li><strong>Tải xuống:</strong> 9 file ảnh sẽ tự động tải xuống với tên <code>piece_0_0.png</code>, <code>piece_0_1.png</code>, ...</li>
+                <li><strong>Chuyển file:</strong> Copy 9 file vào thư mục <code>Font_End/xmas_lette/public/</code></li>
+                <li><strong>Chạy game:</strong> Khởi động lại website và chơi game ghép hình!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewSection = document.getElementById('previewSection');
+        const preview = document.getElementById('preview');
+        const splitBtn = document.getElementById('splitBtn');
+        const gridPreview = document.getElementById('gridPreview');
+        const successMessage = document.getElementById('successMessage');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+
+        let uploadedImage = null;
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = new Image();
+                uploadedImage.onload = () => {
+                    preview.src = e.target.result;
+                    previewSection.classList.add('active');
+                    gridPreview.style.display = 'none';
+                    successMessage.classList.remove('active');
+                };
+                uploadedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        splitBtn.addEventListener('click', async () => {
+            if (!uploadedImage) return;
+
+            splitBtn.disabled = true;
+            progress.classList.add('active');
+            gridPreview.style.display = 'grid';
+            
+            // Clear previous pieces
+            const existingCanvases = gridPreview.querySelectorAll('canvas');
+            existingCanvases.forEach(c => c.remove());
+
+            const pieceWidth = uploadedImage.width / 3;
+            const pieceHeight = uploadedImage.height / 3;
+
+            const pieces = [];
+
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = pieceWidth;
+                    canvas.height = pieceHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // Crop the piece
+                    ctx.drawImage(
+                        uploadedImage,
+                        col * pieceWidth,
+                        row * pieceHeight,
+                        pieceWidth,
+                        pieceHeight,
+                        0,
+                        0,
+                        pieceWidth,
+                        pieceHeight
+                    );
+
+                    gridPreview.appendChild(canvas);
+                    
+                    // Convert to blob for download
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    pieces.push({
+                        blob: blob,
+                        filename: `piece_${row}_${col}.png`
+                    });
+
+                    // Update progress
+                    const percent = Math.round(((row * 3 + col + 1) / 9) * 100);
+                    progressFill.style.width = percent + '%';
+                    progressFill.textContent = percent + '%';
+                }
+            }
+
+            // Download all pieces
+            await downloadAllPieces(pieces);
+
+            splitBtn.disabled = false;
+            successMessage.classList.add('active');
+            progress.classList.remove('active');
+        });
+
+        async function downloadAllPieces(pieces) {
+            for (let i = 0; i < pieces.length; i++) {
+                const piece = pieces[i];
+                const url = URL.createObjectURL(piece.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = piece.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Delay between downloads to prevent browser blocking
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+    </script>
+</body>
+</html>
