@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd Font_End/xmas_lette && npm install && npm run build",
+  "outputDirectory": "Font_End/xmas_lette/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
